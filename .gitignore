@@ -1,0 +1,11 @@
+# Build
+target/
+.vs/
+.vscode/
+
+# OS artifacts
+.DS_Store
+
+# VSC code runner
+test.cpp
+test
