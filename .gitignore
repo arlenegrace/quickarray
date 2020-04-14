@@ -6,7 +6,10 @@ target/
 # OS artifacts
 .DS_Store
 
+#misc files
+rs.h
+quickarray.cpp
+
 # VSC code runner
 test.cpp
 test
-rs.h

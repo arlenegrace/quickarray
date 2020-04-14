@@ -223,7 +223,7 @@ constexpr size_t quick_array<T>::capacity() const noexcept
 }
 
 template <typename T>
-void quick_array<T>::reserve(size_t reserve_size) //cant reserve stack, no need to check state
+void quick_array<T>::reserve(size_t reserve_size)
 {
     if (!is_heap())
         stack_to_heap(reserve_size);
