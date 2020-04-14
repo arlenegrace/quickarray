@@ -18,12 +18,18 @@
         std::cout << "========== Freed \n";
         free(memory);
     }
-    #define LOG_DEBUG(x) std::cout << x << std::endl
+    #define LOG_DEBUG(x) std::cout << x
+#else
+    #define LOG_DEBUG(x)
+#endif
+
+#ifndef QA_GROWTH_FACTOR
+#define QA_GROWTH_FACTOR (2)
 #endif
 
 
 #include <cstring>
-#include <stdexcept>
+#include <stdexcept> 
 #include <utility>
 
 
@@ -80,20 +86,18 @@ class quick_array
     inline static    T&        back_impl(size_t last, T* buff);
     inline static    T&        at_impl(size_t index, size_t arr_size, T* buff);
     inline           void      push_back_impl(size_t& size, T* buff, T item);
-
     inline           void      quick_array_init(const std::initializer_list<T>& arr, size_t size);
 
 public:
     /* CONSTRUCTION AND DESTRUCTION */
     quick_array() noexcept;
-    //quick_array(T* arr, size_t size); /* Not defined */
     quick_array(std::initializer_list<T> arr);
     quick_array(std::initializer_list<T> arr, size_t size);
-    quick_array(quick_array& other); /* Not tested */
-    quick_array(quick_array&& other); /* Not tested */
+    quick_array(const quick_array<T>& other); /* Not tested */
+    quick_array(quick_array<T>&& other); /* Not tested */
     ~quick_array();
 
-    quick_array<T>& operator=(quick_array other); /* Not tested */
+    quick_array<T>& operator=(quick_array<T> other); /* Not tested */
     
     /* MODIFIER METHODS */
     void clear() noexcept;
@@ -101,7 +105,8 @@ public:
     void push_back(T item);
     void emplace_back(); /* Not defined */
     void pop_back();
-    void swap(quick_array& other) noexcept;
+    void swap(quick_array<T>& other) noexcept;
+    friend void swap(quick_array<T>& first, quick_array<T>& second) noexcept;
     
     /* CAPACITY METHODS */
     constexpr        bool   empty() const noexcept;

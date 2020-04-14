@@ -9,3 +9,4 @@ target/
 # VSC code runner
 test.cpp
 test
+rs.h
