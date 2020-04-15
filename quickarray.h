@@ -1,10 +1,86 @@
 
 
+/*
+ * ===============================================================
+ *
+ *                  CONSTRUCTION & DESTRUCTION
+ *
+ * ===============================================================
+ * 
+ *    quick_array() noexcept;
+ *    quick_array(size_t cap);
+ *    quick_array(std::initializer_list<T> arr);
+ *    quick_array(std::initializer_list<T> arr, size_t size);
+ *    quick_array(const quick_array<T>& other);
+ *    quick_array(quick_array<T>&& other) noexcept;
+ *    ~quick_array() noexcept;
+ *    quick_array<T>& operator=(quick_array<T> other) noexcept;
+ *
+ *
+ * ===============================================================
+ *
+ *                          MODIFIERS
+ *
+ * ===============================================================
+ * 
+ *    void clear() noexcept;
+ *    void insert(size_t index, T& element);
+ *    void push_back(T item);
+ *    void emplace_back();
+ *    void pop_back() noexcept;
+ *    void swap(quick_array<T>& other) noexcept;
+ *    friend void swap(quick_array<T>& first, quick_array<T>& second) noexcept;
+ *
+ *
+ * ===============================================================
+ *
+ *                          CAPACITY
+ *
+ * ===============================================================
+ *
+ *    constexpr        bool   empty() const noexcept;
+ *    constexpr        size_t size() const noexcept;
+ *    constexpr static size_t max_size() noexcept;
+ *    constexpr        size_t capacity() const noexcept;
+ *                     void   reserve(size_t reserve_size);
+ *                     void   shrink_to_fit() noexcept;
+ *
+ *
+ * ===============================================================
+ *
+ *                          ITERATORS
+ *
+ * ===============================================================
+ *
+ *          auto begin() noexcept;
+ *          auto end() noexcept;
+ *    const auto begin_c() const noexcept;
+ *    const auto end_c() const noexcept;
+ *
+ *
+ * ===============================================================
+ *
+ *                          ELEMENT ACCESS
+ *
+ * ===============================================================
+ *
+ *          T& at(size_t index) noexcept;
+ *    const T& at_c(size_t index) const noexcept;
+ *          T& operator[](size_t counter);
+ *          T& front() noexcept;
+ *    const T& front_c() const noexcept;
+ *          T& back() noexcept;
+ *    const T& back_c() const noexcept;
+ *          T* data() noexcept;
+ *    const T* data_c() const noexcept;
+ */
+
 
 #ifndef QUICK_ARRAY_560FDBD65BB6
 #define QUICK_ARRAY_560FDBD65BB6
 
-
+#include <stdexcept> /* std::out_of_range */
+#include <utility> /* std::swap, std::initializer_list, std::memcpy */
 
 #define DEBUG false
 #if DEBUG == true
@@ -30,40 +106,41 @@
 #endif
 
 
-#include <stdexcept> 
-#include <utility> /* std::swap, std::initializer_list, std::memcpy */
 
+/*
+ * ===============================================================
+ *
+ *                          DECLARATIONS
+ *
+ * ===============================================================
+ */
 
-/* DECLARATIONS */
 template <class T> class quick_array;
 template <class T> class heap_array;
 template <class T> class stack_array;
 
-
-/* CLASSES */
 template <typename T>
 class heap_array
 {
     friend class quick_array<T>;
+
+    T* array;
     size_t size;
     size_t capacity;
-    T* array;
 };
-
 
 template <typename T>
 constexpr auto stack_bytes = size_t{ sizeof(heap_array<T>) - 1 };
-
 
 template <class T>
 class stack_array
 {
     friend class quick_array<T>;
     static constexpr auto capacity = size_t{ stack_bytes<T> / sizeof(T) };
-    T array[capacity];
-    uint8_t size;
-};
 
+    uint8_t size;
+    T array[capacity];
+};
 
 template <class T>
 class quick_array
@@ -76,11 +153,10 @@ class quick_array
     enum class vec_state : uint8_t { stack, heap };
     vec_state state = vec_state::stack;
     
-    /* PRIVATE HELPER METHODS */
+    /* Private helpers */
     constexpr vec_state vec_state() const noexcept;
     constexpr bool      is_heap() const noexcept;
     constexpr bool      is_stack() const noexcept;
-    constexpr size_t&   get_size() const noexcept;
               void      heap_init(size_t size, size_t cap);
               void      stack_init(size_t size) noexcept;
               void      stack_to_heap(size_t arr_size);
@@ -91,7 +167,6 @@ class quick_array
               void      quick_array_init(const std::initializer_list<T>& arr, size_t size);
 
 public:
-    /* CONSTRUCTION AND DESTRUCTION */
     quick_array() noexcept;
     quick_array(size_t cap);
     quick_array(std::initializer_list<T> arr);
@@ -102,7 +177,7 @@ public:
 
     quick_array<T>& operator=(quick_array<T> other) noexcept; /* Not tested */
     
-    /* MODIFIER METHODS */
+    /* Modifiers */
     void clear() noexcept;
     void insert(size_t index, T& element);
     void push_back(T item);
@@ -111,7 +186,7 @@ public:
     void swap(quick_array<T>& other) noexcept;
     friend void swap(quick_array<T>& first, quick_array<T>& second) noexcept;
     
-    /* CAPACITY METHODS */
+    /* Capacity */
     constexpr        bool   empty() const noexcept;
     constexpr        size_t size() const noexcept;
     constexpr static size_t max_size() noexcept;
@@ -119,13 +194,13 @@ public:
                      void   reserve(size_t reserve_size);
                      void   shrink_to_fit() noexcept;
     
-    /* ITERATOR METHODS */
-    auto begin() noexcept;
-    auto end() noexcept;
+    /* Iterators */
+          auto begin() noexcept;
+          auto end() noexcept;
     const auto begin_c() const noexcept; /* Not tested */
     const auto end_c() const noexcept; /* Not tested */
     
-    /* ELEMENT ACCESS METHODS */
+    /* Element access */
           T& at(size_t index) noexcept;
     const T& at_c(size_t index) const noexcept; /* Not tested */
           T& operator[](size_t counter);
@@ -136,6 +211,7 @@ public:
           T* data() noexcept;
     const T* data_c() const noexcept; /* Not tested */
 };
+
 
 template <typename T>
 constexpr enum class quick_array<T>::vec_state quick_array<T>::vec_state() const noexcept
@@ -316,7 +392,7 @@ void quick_array<T>::push_back(T item)
 template <typename T>
 void quick_array<T>::pop_back() noexcept
 {
-    get_size() -= 1;
+    is_heap() ? hvec.size -= 1 : svec.size -= 1;
 }
 
 template <typename T>
@@ -340,21 +416,15 @@ constexpr bool quick_array<T>::empty() const noexcept
 }
 
 template <typename T>
-constexpr size_t& quick_array<T>::get_size() const noexcept
+constexpr size_t quick_array<T>::size() const noexcept
 {
     return is_heap() ? hvec.size : svec.size;
 }
 
 template <typename T>
-constexpr size_t quick_array<T>::size() const noexcept
-{
-    return get_size();
-}
-
-template <typename T>
 constexpr size_t quick_array<T>::max_size() noexcept
 {
-    return size_t{-1} / sizeof(T);
+    return size_t(-1) / sizeof(T);
 }
 
 template <typename T>
