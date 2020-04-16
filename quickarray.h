@@ -23,12 +23,12 @@
  *
  * ===============================================================
  * 
- *    void clear() noexcept;
- *    void insert(size_t index, T& element);
- *    void push_back(T item);
- *    void emplace_back();
- *    void pop_back() noexcept;
- *    void swap(quick_array<T>& other) noexcept;
+ *           void clear() noexcept;
+ *           void insert(size_t index, T& element);
+ *           void push_back(T item);
+ *           void emplace_back();
+ *           void pop_back() noexcept;
+ *           void swap(quick_array<T>& other) noexcept;
  *    friend void swap(quick_array<T>& first, quick_array<T>& second) noexcept;
  *
  *
@@ -155,21 +155,21 @@ class quick_array
         stack_array<T> stack;
     };
     
-    enum class qa_state : uint8_t { stack, heap };
-    qa_state state = qa_state::stack;
+    enum class array_state : uint8_t { stack, heap };
+    array_state state = array_state::stack;
     
     /* Private helpers */
-    constexpr qa_state qa_state() const noexcept;
-    constexpr bool      is_heap() const noexcept;
-    constexpr bool      is_stack() const noexcept;
-              void      heap_init(size_t size, size_t cap);
-              void      stack_init(size_t size) noexcept;
-              void      stack_to_heap(size_t arr_size);
-              void      heap_resize(size_t reserve_size);
-    static    T&        back_impl(size_t last, T* buff);
-    static    T&        at_impl(size_t index, size_t arr_size, T* buff);
-              void      push_back_impl(size_t& size, T* buff, T item);
-              void      quick_array_init(const std::initializer_list<T>& arr, size_t size);
+    constexpr array_state array_state() const noexcept;
+    constexpr bool     is_heap() const noexcept;
+    constexpr bool     is_stack() const noexcept;
+              void     heap_init(size_t size, size_t cap);
+              void     stack_init(size_t size) noexcept;
+              void     stack_to_heap(size_t arr_size);
+              void     heap_resize(size_t reserve_size);
+    static    T&       back_impl(size_t last, T* buff);
+    static    T&       at_impl(size_t index, size_t arr_size, T* buff);
+              void     push_back_impl(size_t& size, T* buff, T item);
+              void     quick_array_init(const std::initializer_list<T>& arr, size_t size);
 
 public:
     quick_array() noexcept;
@@ -183,12 +183,12 @@ public:
     quick_array<T>& operator=(quick_array<T> other) noexcept; /* Not tested */
     
     /* Modifiers */
-    void clear() noexcept;
-    void insert(size_t index, T& element);
-    void push_back(T item);
-    void emplace_back(); /* Not defined */
-    void pop_back() noexcept;
-    void swap(quick_array<T>& other) noexcept;
+           void clear() noexcept;
+           void insert(size_t index, T& element);
+           void push_back(T item);
+           void emplace_back(); /* Not defined */
+           void pop_back() noexcept;
+           void swap(quick_array<T>& other) noexcept;
     friend void swap(quick_array<T>& first, quick_array<T>& second) noexcept;
     
     /* Capacity */
@@ -227,7 +227,7 @@ public:
  */
 
 template <typename T>
-QA_API constexpr enum class quick_array<T>::qa_state quick_array<T>::qa_state() const noexcept
+QA_API constexpr enum class quick_array<T>::array_state quick_array<T>::array_state() const noexcept
 {
     return state;
 }
@@ -235,19 +235,19 @@ QA_API constexpr enum class quick_array<T>::qa_state quick_array<T>::qa_state() 
 template <typename T>
 QA_API constexpr bool quick_array<T>::is_heap() const noexcept
 {
-    return state == qa_state::heap;
+    return state == array_state::heap;
 }
 
 template <typename T>
 QA_API constexpr bool quick_array<T>::is_stack() const noexcept
 {
-    return state == qa_state::stack;
+    return state == array_state::stack;
 }
 
 template <typename T>
 QA_API void quick_array<T>::heap_init(size_t size, size_t cap)
 {
-    state = qa_state::heap;
+    state = array_state::heap;
     heap.size = size;
     heap.capacity = cap;
     heap.array = new T[cap];
@@ -256,7 +256,7 @@ QA_API void quick_array<T>::heap_init(size_t size, size_t cap)
 template <typename T>
 QA_API void quick_array<T>::stack_init(size_t size) noexcept
 {
-    state = qa_state::stack;
+    state = array_state::stack;
     stack.size = size;
 }
 
@@ -266,7 +266,7 @@ QA_API void quick_array<T>::stack_to_heap(size_t arr_size)
     const size_t stack_size = stack.size;
     T* array_temp = new T[arr_size];
     std::memcpy(array_temp, stack.array, QA_STACK_CAPACITY<T>);
-    state = qa_state::heap;
+    state = array_state::heap;
     heap.size = stack_size;
     heap.capacity = arr_size;
     heap.array = array_temp;
