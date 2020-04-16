@@ -84,7 +84,7 @@
 
 #define DEBUG false
 #if DEBUG == true
-    #include <iostream>
+#   include <iostream>
 
     void* operator new(size_t size)
     {
@@ -96,9 +96,9 @@
         std::cout << "========== Freed \n";
         free(memory);
     }
-    #define LOG_DEBUG(x) std::cout << x
+#   define LOG_DEBUG(x) std::cout << x
 #else
-    #define LOG_DEBUG(x)
+#   define LOG_DEBUG(x)
 #endif
 
 #ifndef QA_GROWTH_FACTOR
@@ -119,6 +119,10 @@ template <class T> class quick_array;
 template <class T> class heap_array;
 template <class T> class stack_array;
 
+
+template <typename T>
+constexpr auto QA_STACK_CAPACITY = size_t{ sizeof(heap_array<T>) - 1 };
+
 template <typename T>
 class heap_array
 {
@@ -129,17 +133,14 @@ class heap_array
     size_t capacity;
 };
 
-template <typename T>
-constexpr auto stack_bytes = size_t{ sizeof(heap_array<T>) - 1 };
-
 template <class T>
 class stack_array
 {
     friend class quick_array<T>;
-    static constexpr auto capacity = size_t{ stack_bytes<T> / sizeof(T) };
+    static constexpr auto capacity = size_t{ QA_STACK_CAPACITY<T> / sizeof(T) };
 
-    uint8_t size;
     T array[capacity];
+    uint8_t size;
 };
 
 template <class T>
@@ -250,9 +251,9 @@ void quick_array<T>::stack_init(size_t size) noexcept
 template <typename T>
 void quick_array<T>::stack_to_heap(size_t arr_size)
 {
-    size_t stack_size = svec.size;
+    const size_t stack_size = svec.size;
     T* array_temp = new T[arr_size];
-    std::memcpy(array_temp, svec.array, stack_bytes<T>);
+    std::memcpy(array_temp, svec.array, QA_STACK_CAPACITY<T>);
     state = vec_state::heap;
     hvec.size = stack_size;
     hvec.capacity = arr_size;
@@ -294,7 +295,7 @@ void quick_array<T>::push_back_impl(size_t& size, T* buff, T item)
 template <typename T>
 void quick_array<T>::quick_array_init(const std::initializer_list<T>& arr, size_t cap)
 {
-    if (cap * sizeof(T) > stack_bytes<T>) {
+    if (cap * sizeof(T) > QA_STACK_CAPACITY<T>) {
         heap_init(arr.size(), cap);
         std::memcpy(hvec.array, arr.begin(), sizeof(T) * arr.size());
     } else {
@@ -385,7 +386,9 @@ void quick_array<T>::push_back(T item)
         stack_to_heap(svec.capacity * QA_GROWTH_FACTOR);
         push_back_impl(hvec.size, hvec.array, item);
     } else {
-        push_back_impl(svec.size, svec.array, item);
+        /* stack_array's uint8_t size member generates rvalue temporary with push_back_impl */
+        svec.array[svec.size] = item;
+        svec.size++;
     }
 }
 
@@ -412,7 +415,7 @@ void swap(quick_array<T>& first, quick_array<T>& second) noexcept
 template <typename T>
 constexpr bool quick_array<T>::empty() const noexcept
 {
-    return get_size() == 0;
+    return size() == 0;
 }
 
 template <typename T>
