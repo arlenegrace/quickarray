@@ -105,6 +105,10 @@
 #define QA_GROWTH_FACTOR (2)
 #endif
 
+#ifndef QA_API
+#define QA_API inline
+#endif
+
 
 
 /*
@@ -214,26 +218,34 @@ public:
 };
 
 
+/*
+ * ===============================================================
+ *
+ *                         PRIVATE HELPERS
+ *
+ * ===============================================================
+ */
+
 template <typename T>
-constexpr enum class quick_array<T>::vec_state quick_array<T>::vec_state() const noexcept
+QA_API constexpr enum class quick_array<T>::vec_state quick_array<T>::vec_state() const noexcept
 {
     return state;
 }
 
 template <typename T>
-constexpr bool quick_array<T>::is_heap() const noexcept
+QA_API constexpr bool quick_array<T>::is_heap() const noexcept
 {
     return state == vec_state::heap;
 }
 
 template <typename T>
-constexpr bool quick_array<T>::is_stack() const noexcept
+QA_API constexpr bool quick_array<T>::is_stack() const noexcept
 {
     return state == vec_state::stack;
 }
 
 template <typename T>
-void quick_array<T>::heap_init(size_t size, size_t cap)
+QA_API void quick_array<T>::heap_init(size_t size, size_t cap)
 {
     state = vec_state::heap;
     heap.size = size;
@@ -242,14 +254,14 @@ void quick_array<T>::heap_init(size_t size, size_t cap)
 }
 
 template <typename T>
-void quick_array<T>::stack_init(size_t size) noexcept
+QA_API void quick_array<T>::stack_init(size_t size) noexcept
 {
     state = vec_state::stack;
     stack.size = size;
 }
 
 template <typename T>
-void quick_array<T>::stack_to_heap(size_t arr_size)
+QA_API void quick_array<T>::stack_to_heap(size_t arr_size)
 {
     const size_t stack_size = stack.size;
     T* array_temp = new T[arr_size];
@@ -261,7 +273,7 @@ void quick_array<T>::stack_to_heap(size_t arr_size)
 }
 
 template <typename T>
-void quick_array<T>::heap_resize(size_t reserve_size)
+QA_API void quick_array<T>::heap_resize(size_t reserve_size)
 {
     T* array_temp = new T[reserve_size];
     std::memcpy(array_temp, heap.array, sizeof(T) * heap.size);
@@ -271,7 +283,7 @@ void quick_array<T>::heap_resize(size_t reserve_size)
 }
 
 template <typename T>
-T& quick_array<T>::at_impl(size_t index, size_t arr_size, T* buff)
+QA_API T& quick_array<T>::at_impl(size_t index, size_t arr_size, T* buff)
 {
     if (index >= arr_size)
         throw std::out_of_range("Index is out of bounds.");
@@ -280,20 +292,20 @@ T& quick_array<T>::at_impl(size_t index, size_t arr_size, T* buff)
 }
 
 template <typename T>
-T& quick_array<T>::back_impl(size_t last, T* buff)
+QA_API T& quick_array<T>::back_impl(size_t last, T* buff)
 {
     return buff[last - 1];
 }
 
 template <typename T>
-void quick_array<T>::push_back_impl(size_t& size, T* buff, T item)
+QA_API void quick_array<T>::push_back_impl(size_t& size, T* buff, T item)
 {
     buff[size] = item;
     size++;
 }
 
 template <typename T>
-void quick_array<T>::quick_array_init(const std::initializer_list<T>& arr, size_t cap)
+QA_API void quick_array<T>::quick_array_init(const std::initializer_list<T>& arr, size_t cap)
 {
     if (cap * sizeof(T) > QA_STACK_CAPACITY<T>) {
         heap_init(arr.size(), cap);
@@ -304,26 +316,35 @@ void quick_array<T>::quick_array_init(const std::initializer_list<T>& arr, size_
     }
 }
 
+
+/*
+ * ===============================================================
+ *
+ *                   CONSTRUCTION & DESTRUCTION
+ *
+ * ===============================================================
+ */
+
 template <typename T>
-quick_array<T>::quick_array() noexcept
+QA_API quick_array<T>::quick_array() noexcept
 {
     stack.size = 0;
 }
 
 template <typename T>
-quick_array<T>::quick_array(size_t cap)
+QA_API quick_array<T>::quick_array(size_t cap)
 {
     is_stack() ? stack_init() : heap_init(0, cap);
 }
 
 template <typename T>
-quick_array<T>::quick_array(std::initializer_list<T> arr)
+QA_API quick_array<T>::quick_array(std::initializer_list<T> arr)
 {
     quick_array_init(arr, arr.size());
 }
 
 template <typename T>
-quick_array<T>::quick_array(std::initializer_list<T> arr, size_t size)
+QA_API quick_array<T>::quick_array(std::initializer_list<T> arr, size_t size)
 {
     assert(arr.size() >= size);
 
@@ -331,7 +352,7 @@ quick_array<T>::quick_array(std::initializer_list<T> arr, size_t size)
 }
 
 template <typename T>
-quick_array<T>::quick_array(const quick_array<T>& other)
+QA_API quick_array<T>::quick_array(const quick_array<T>& other)
 {
     if (other.is_heap()) {
         heap_init(other.heap.size, other.heap.capacity);
@@ -343,40 +364,49 @@ quick_array<T>::quick_array(const quick_array<T>& other)
 }
 
 template <typename T>
-quick_array<T>::quick_array(quick_array<T>&& other) noexcept
+QA_API quick_array<T>::quick_array(quick_array<T>&& other) noexcept
 {
     heap = other.heap;
     state = other.state;
 }
 
 template <typename T>
-quick_array<T>::~quick_array() noexcept
+QA_API quick_array<T>::~quick_array() noexcept
 {
     if (is_heap())
         delete[] heap.array;
 }
 
 template <typename T>
-quick_array<T>& quick_array<T>::operator=(quick_array<T> other) noexcept
+QA_API quick_array<T>& quick_array<T>::operator=(quick_array<T> other) noexcept
 {
     swap(other);
     return *this;
 }
 
+
+/*
+ * ===============================================================
+ *
+ *                             MODIFIERS
+ *
+ * ===============================================================
+ */
+
 template <typename T>
-void quick_array<T>::clear() noexcept
+QA_API void quick_array<T>::clear() noexcept
 {
     is_heap() ? heap.size = 0 : stack.size = 0;
 }
 
 template <typename T>
-void quick_array<T>::insert(size_t index, T& element)
+QA_API void quick_array<T>::insert(size_t index, T& element)
 {
     this[index] = element;
 }
 
 template <typename T>
-void quick_array<T>::push_back(T item)
+QA_API void quick_array<T>::push_back(T item)
 {
     if (is_heap()) {
         if (heap.size == heap.capacity)
@@ -393,51 +423,60 @@ void quick_array<T>::push_back(T item)
 }
 
 template <typename T>
-void quick_array<T>::pop_back() noexcept
+QA_API void quick_array<T>::pop_back() noexcept
 {
     is_heap() ? heap.size -= 1 : stack.size -= 1;
 }
 
 template <typename T>
-void quick_array<T>::swap(quick_array<T>& other) noexcept
+QA_API void quick_array<T>::swap(quick_array<T>& other) noexcept
 {
     std::swap(heap, other.heap);
     std::swap(state, other.state);
 }
 
 template <typename T>
-void swap(quick_array<T>& first, quick_array<T>& second) noexcept
+QA_API void swap(quick_array<T>& first, quick_array<T>& second) noexcept
 {
     std::swap(first.heap, second.heap);
     std::swap(first.state, second.state);
 }
 
+
+/*
+ * ===============================================================
+ *
+ *                             CAPACITY
+ *
+ * ===============================================================
+ */
+
 template <typename T>
-constexpr bool quick_array<T>::empty() const noexcept
+QA_API constexpr bool quick_array<T>::empty() const noexcept
 {
     return size() == 0;
 }
 
 template <typename T>
-constexpr size_t quick_array<T>::size() const noexcept
+QA_API constexpr size_t quick_array<T>::size() const noexcept
 {
     return is_heap() ? heap.size : stack.size;
 }
 
 template <typename T>
-constexpr size_t quick_array<T>::max_size() noexcept
+QA_API constexpr size_t quick_array<T>::max_size() noexcept
 {
     return size_t(-1) / sizeof(T);
 }
 
 template <typename T>
-constexpr size_t quick_array<T>::capacity() const noexcept
+QA_API constexpr size_t quick_array<T>::capacity() const noexcept
 {
     return is_heap() ? heap.capacity : stack.capacity;
 }
 
 template <typename T>
-void quick_array<T>::reserve(size_t reserve_size)
+QA_API void quick_array<T>::reserve(size_t reserve_size)
 {
     if (!is_heap())
         stack_to_heap(reserve_size);
@@ -446,86 +485,104 @@ void quick_array<T>::reserve(size_t reserve_size)
 }
 
 template <typename T>
-void quick_array<T>::shrink_to_fit() noexcept
+QA_API void quick_array<T>::shrink_to_fit() noexcept
 {
     if (is_heap())
         heap_resize(heap.size);
 }
 
+
+/*
+ * ===============================================================
+ *
+ *                             ITERATORS
+ *
+ * ===============================================================
+ */
+
 template <typename T>
-auto quick_array<T>::begin() noexcept
+QA_API auto quick_array<T>::begin() noexcept
 {
     return data();
 }
 
 template <typename T>
-auto quick_array<T>::end() noexcept
+QA_API auto quick_array<T>::end() noexcept
 {
     return is_heap() ? &back_impl(heap.size + 1, heap.array) : &back_impl(stack.size + 1, stack.array);
 }
 
 template <typename T>
-const auto quick_array<T>::begin_c() const noexcept
+QA_API const auto quick_array<T>::begin_c() const noexcept
 {
     return begin();
 }
 
 template <typename T>
-const auto quick_array<T>::end_c() const noexcept
+QA_API const auto quick_array<T>::end_c() const noexcept
 {
     return end();
 }
 
+
+/*
+ * ===============================================================
+ *
+ *                        ELEMENT ACCESS
+ *
+ * ===============================================================
+ */
+
 template <typename T>
-T& quick_array<T>::at(size_t index) noexcept
+QA_API T& quick_array<T>::at(size_t index) noexcept
 {
     return is_heap() ? at_impl(index, heap.size, heap.array) : at_impl(index, stack.size, stack.array);
 }
 
 template <typename T>
-const T& quick_array<T>::at_c(size_t index) const noexcept
+QA_API const T& quick_array<T>::at_c(size_t index) const noexcept
 {
     return at(index);
 }
 
 template <typename T>
-T& quick_array<T>::operator[](size_t counter)
+QA_API T& quick_array<T>::operator[](size_t counter)
 {
     return data()[counter];
 }
 
 template <typename T>
-T& quick_array<T>::front() noexcept
+QA_API T& quick_array<T>::front() noexcept
 {
     return at(0);
 }
 
 template <typename T>
-const T& quick_array<T>::front_c() const noexcept
+QA_API const T& quick_array<T>::front_c() const noexcept
 {
     return front();
 }
 
 template <typename T>
-T& quick_array<T>::back() noexcept
+QA_API T& quick_array<T>::back() noexcept
 {
     return is_heap() ? back_impl(heap.size, heap.array) : back_impl(stack.size, stack.array);
 }
 
 template <typename T>
-const T& quick_array<T>::back_c() const noexcept
+QA_API const T& quick_array<T>::back_c() const noexcept
 {
     return back();
 }
 
 template <typename T>
-T* quick_array<T>::data() noexcept
+QA_API T* quick_array<T>::data() noexcept
 {
     return is_heap() ? heap.array : stack.array;
 }
 
 template <typename T>
-const T* quick_array<T>::data_c() const noexcept
+QA_API const T* quick_array<T>::data_c() const noexcept
 {
     return data();
 }
