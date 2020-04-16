@@ -155,11 +155,11 @@ class quick_array
         stack_array<T> stack;
     };
     
-    enum class vec_state : uint8_t { stack, heap };
-    vec_state state = vec_state::stack;
+    enum class qa_state : uint8_t { stack, heap };
+    qa_state state = qa_state::stack;
     
     /* Private helpers */
-    constexpr vec_state vec_state() const noexcept;
+    constexpr qa_state qa_state() const noexcept;
     constexpr bool      is_heap() const noexcept;
     constexpr bool      is_stack() const noexcept;
               void      heap_init(size_t size, size_t cap);
@@ -227,7 +227,7 @@ public:
  */
 
 template <typename T>
-QA_API constexpr enum class quick_array<T>::vec_state quick_array<T>::vec_state() const noexcept
+QA_API constexpr enum class quick_array<T>::qa_state quick_array<T>::qa_state() const noexcept
 {
     return state;
 }
@@ -235,19 +235,19 @@ QA_API constexpr enum class quick_array<T>::vec_state quick_array<T>::vec_state(
 template <typename T>
 QA_API constexpr bool quick_array<T>::is_heap() const noexcept
 {
-    return state == vec_state::heap;
+    return state == qa_state::heap;
 }
 
 template <typename T>
 QA_API constexpr bool quick_array<T>::is_stack() const noexcept
 {
-    return state == vec_state::stack;
+    return state == qa_state::stack;
 }
 
 template <typename T>
 QA_API void quick_array<T>::heap_init(size_t size, size_t cap)
 {
-    state = vec_state::heap;
+    state = qa_state::heap;
     heap.size = size;
     heap.capacity = cap;
     heap.array = new T[cap];
@@ -256,7 +256,7 @@ QA_API void quick_array<T>::heap_init(size_t size, size_t cap)
 template <typename T>
 QA_API void quick_array<T>::stack_init(size_t size) noexcept
 {
-    state = vec_state::stack;
+    state = qa_state::stack;
     stack.size = size;
 }
 
@@ -266,7 +266,7 @@ QA_API void quick_array<T>::stack_to_heap(size_t arr_size)
     const size_t stack_size = stack.size;
     T* array_temp = new T[arr_size];
     std::memcpy(array_temp, stack.array, QA_STACK_CAPACITY<T>);
-    state = vec_state::heap;
+    state = qa_state::heap;
     heap.size = stack_size;
     heap.capacity = arr_size;
     heap.array = array_temp;
