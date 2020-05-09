@@ -1,7 +1,7 @@
 ## quick_array
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-`quick_array` is a fast resizable array library written in C++ with a large focus on performance, maintainability and code readability.
+`quick_array` is a fast resizable array library written in C++ with a large focus on performance, maintainability and code readability. It aims to be a drop-in replacement to std::vector with additional features.
 
 ### Features
 - **High performance**. This library was built from the ground up with performance in mind. Initial benchmarks outperform GCC's implementation of `std::vector` by a factor of six.
